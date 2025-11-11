@@ -16,7 +16,7 @@
     input[type="text"], input[type="email"], input[type="date"], select {
       width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; background:#fff;
     }
-    .actions { display:flex; gap:10px; margin-top: 10px;}
+    .actions { display:flex; gap:10px; margin-top: 10px; }
     button { appearance: none; border: 0; border-radius: 10px; padding: 11px 14px; cursor: pointer; font-size: 16px; }
     .btn { background:#111; color:#fff; }
     .btn.secondary { background:#e9e9e9; color:#111; }
@@ -72,16 +72,18 @@
 
       <h2>Bestätigung & Datenschutz</h2>
       <div class="grid">
-        <label>
-          <input type="checkbox" name="consent" value="yes" required />
-          Ich stimme der Verarbeitung meiner Daten gemäß der DSGVO zu.
-        </label>
-
-        <label>
-          <input type="checkbox" name="agb" value="yes" required />
-          Ich habe die Teilnahmebedingungen <!-- <a href="[LINK_ZU_TEILNAHMEBEDINGUNGEN]" target="_blank">Teilnahmebedingungen</a> -->gelesen und bin mit dem Vorgehen einverstanden.
-        </label>
-
+        <div>
+          <label>
+            <input type="checkbox" id="consent" name="consent" value="yes" required />
+            Ich stimme der Verarbeitung meiner Daten gemäß der DSGVO zu.
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" id="agb" name="agb" value="yes" required />
+            Ich habe die <!-- <a href="[LINK_ZU_TEILNAHMEBEDINGUNGEN]" target="_blank"> -->Teilnahmebedingungen<!-- </a> --> gelesen und bin mit dem Vorgehen einverstanden.
+          </label>
+        </div>
         <div class="footer-note">
           Bei Fragen: <strong>zeltlagerboesensell@web.de</strong>
         </div>
@@ -98,6 +100,7 @@
     </form>
   </div>
 
+  <!-- Vorlage für ein Kind (wird per JS geklont) -->
   <template id="childTemplate">
     <div class="child-card">
       <div class="grid grid-2">
@@ -106,7 +109,10 @@
         <div>
           <label class="required">Geschlecht</label>
           <select name="__GENDER__" required>
-            <option value="">Bitte wählen</option><option>Mädchen</option><option>Junge</option><option>Divers</option>
+            <option value="">Bitte wählen</option>
+            <option>Mädchen</option>
+            <option>Junge</option>
+            <option>Divers</option>
           </select>
         </div>
         <div><label class="required">Geburtsdatum</label><input name="__BIRTH__" type="date" required /></div>
@@ -119,112 +125,118 @@
   </template>
 
   <script>
-    (function(){
-      const form=document.getElementById('signupForm');
-      const container=document.getElementById('childrenContainer');
-      const addBtn=document.getElementById('addChildBtn');
-      const template=document.getElementById('childTemplate').content;
-      const msg=document.getElementById('msg');
-      const ok=document.getElementById('success');
-      const err=document.getElementById('error');
-      const submitBtn=document.getElementById('submitBtn');
-      const emailField=document.getElementById('parent_email');
-      const replyHook=document.getElementById('replyToHook');
-      let idx=0;
+  (function() {
+    const form = document.getElementById('signupForm');
+    const container = document.getElementById('childrenContainer');
+    const addBtn = document.getElementById('addChildBtn');
+    const template = document.getElementById('childTemplate').content;
+    const msg = document.getElementById('msg');
+    const ok = document.getElementById('success');
+    const err = document.getElementById('error');
+    const submitBtn = document.getElementById('submitBtn');
+    const emailField = document.getElementById('parent_email');
+    const replyHook = document.getElementById('replyToHook');
+    let idx = 0;
 
-      function addChild(){
-        const clone=document.importNode(template,true);
-        const map={
-          "__NAME__":`children[${idx}][first]`,
-          "__SURNAME__":`children[${idx}][last]`,
-          "__GENDER__":`children[${idx}][gender]`,
-          "__BIRTH__":`children[${idx}][birthdate]`,
-          "__CITY__":`children[${idx}][city]`,
-          "__TSHIRT__":`children[${idx}][tshirt]`,
-          "__NOTES__":`children[${idx}][notes]`
-        };
-        clone.querySelectorAll('input, select').forEach(el=>{
-          for(const key in map){ if(el.name===key){ el.name=map[key]; break; } }
-        });
-        container.appendChild(clone);
-        idx++;
+    // Erstes Kind auto hinzufügen
+    function addChild() {
+      const clone = document.importNode(template, true);
+      const map = {
+        "__NAME__":   `children[${idx}][first]`,
+        "__SURNAME__":`children[${idx}][last]`,
+        "__GENDER__": `children[${idx}][gender]`,
+        "__BIRTH__":  `children[${idx}][birthdate]`,
+        "__CITY__":   `children[${idx}][city]`,
+        "__TSHIRT__": `children[${idx}][tshirt]`,
+        "__NOTES__":  `children[${idx}][notes]`
+      };
+      clone.querySelectorAll('input, select').forEach(el => {
+        for (const key in map) { if (el.name === key) { el.name = map[key]; break; } }
+      });
+      container.appendChild(clone);
+      idx++;
+      updateRemoveButtons();
+    }
+
+    function updateRemoveButtons() {
+      const cards = container.querySelectorAll('.child-card');
+      cards.forEach(c => c.querySelector('.removeChildBtn').disabled = cards.length <= 1);
+    }
+
+    addBtn.addEventListener('click', addChild);
+    addChild();
+
+    container.addEventListener('click', e => {
+      if (e.target.classList.contains('removeChildBtn')) {
+        const card = e.target.closest('.child-card');
+        if (container.querySelectorAll('.child-card').length > 1) container.removeChild(card);
         updateRemoveButtons();
       }
+    });
 
-      function updateRemoveButtons(){
-        const cards=container.querySelectorAll('.child-card');
-        cards.forEach(c=>c.querySelector('.removeChildBtn').disabled=cards.length<=1);
+    // Reply-To für Formspree
+    emailField.addEventListener('input', () => replyHook.value = emailField.value);
+
+    // ABSENDEN (Zeitsteuerung momentan deaktiviert – siehe Kommentarblock)
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      /*  === Zeitsteuerung (für Tests DEAKTIVIERT) ===
+      const now = new Date();
+      const start = new Date("2025-11-16T12:00:00+01:00");
+      const end   = new Date("2025-11-16T15:00:00+01:00");
+      if (now < start || now > end) {
+        ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
+        const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
+        const closedMsg = document.createElement('div');
+        closedMsg.className = 'error notice';
+        closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
+        form.appendChild(closedMsg);
+        return;
       }
+      */
 
-      addBtn.addEventListener('click',addChild);
-      addChild(); // initial
+      // Normales Absenden
+      ok.classList.add('hidden');
+      err.classList.add('hidden');
+      msg.classList.remove('hidden');
+      submitBtn.disabled = true;
 
-      container.addEventListener('click',e=>{
-        if(e.target.classList.contains('removeChildBtn')){
-          const card=e.target.closest('.child-card');
-          if(container.querySelectorAll('.child-card').length>1){
-            container.removeChild(card);
-          }
-          updateRemoveButtons();
-        }
-      });
+      try {
+        const fd = new FormData(form);
 
-      // Reply-To für Formspree
-      emailField.addEventListener('input',()=>replyHook.value=emailField.value);
+        // Pflicht-Checkboxen prüfen
+        const consentBox = document.getElementById('consent');
+        const agbBox = document.getElementById('agb');
+        if (!consentBox.checked) throw new Error('Bitte stimmen Sie der Datenverarbeitung zu.');
+        if (!agbBox.checked)     throw new Error('Bitte bestätigen Sie, dass Sie die Teilnahmebedingungen gelesen haben und einverstanden sind.');
 
-      // ABSENDEN mit Zeitfenster + Checkbox-Prüfung
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-/*
-const now = new Date();
-const start = new Date("2025-11-16T12:00:00+01:00");
-const end   = new Date("2025-11-16T15:00:00+01:00");
+        fd.set('_replyto', emailField.value);
 
-if (now < start || now > end) {
-  ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
-  const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
-  const closedMsg = document.createElement('div');
-  closedMsg.className = 'error notice';
-  closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
-  form.appendChild(closedMsg);
-  return;
-}
-*/
+        const resp = await fetch(form.action, {
+          method: 'POST',
+          body: fd,
+          headers: { 'Accept': 'application/json' }
+        });
 
-        // === Normales Absenden ===
-        ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.remove('hidden');
-        submitBtn.disabled = true;
-
-        try {
-          const fd = new FormData(form);
-          // Pflicht-Checkboxen prüfen
-          if (!fd.get('consent')) throw new Error('Bitte stimmen Sie der Datenverarbeitung zu.');
-          if (!fd.get('agb'))     throw new Error('Bitte bestätigen Sie, dass Sie die Teilnahmebedingungen gelesen haben und einverstanden sind.');
-          // Reply-To setzen
-          fd.set('_replyto', emailField.value);
-
-          const resp = await fetch(form.action, { method: 'POST', body: fd, headers: { 'Accept':'application/json' } });
-          if (resp.ok) {
-            msg.classList.add('hidden');
-            ok.classList.remove('hidden');
-            form.reset();
-            container.innerHTML = '';
-            idx = 0; addChild();
-          } else {
-            throw new Error('Unbekannter Fehler beim Senden.');
-          }
-        } catch (ex) {
+        if (resp.ok) {
           msg.classList.add('hidden');
-          err.textContent = 'Fehler: ' + ex.message;
-          err.classList.remove('hidden');
-        } finally {
-          submitBtn.disabled = false;
+          ok.classList.remove('hidden');
+          form.reset();
+          container.innerHTML = '';
+          idx = 0; addChild();
+        } else {
+          throw new Error('Unbekannter Fehler beim Senden.');
         }
-      });
-    })();
+      } catch (ex) {
+        msg.classList.add('hidden');
+        err.textContent = 'Fehler: ' + ex.message;
+        err.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
   </script>
 </body>
 </html>
-
-
-
