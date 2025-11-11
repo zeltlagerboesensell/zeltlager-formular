@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anmeldung Zeltlager Bösensell 2025</title>
+  <title>Anmeldung Zeltlager Bösensell 2026</title>
   <style>
     :root { --max: 860px; --gap: 14px; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans"; margin: 0; background: #f7f7f7; color:#111; }
@@ -33,17 +33,16 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Anmeldung Zeltlager Bösensell 2025</h1>
+    <h1>Anmeldung Zeltlager Bösensell 2026</h1>
     <p class="muted">
-      Bitte füllen Sie das Formular sorgfältig aus. Sie können beliebig viele Kinder anmelden.
-      Die Anmeldung ist nur am <strong>[ANMELDEDATUM UND UHRZEIT]</strong> möglich.
-      Teilnahmeberechtigt: 8–14 Jahre (Stichtag = <strong>[ANREISETAG]</strong>).
+      Bitte füllen Sie das Formular sorgfältig aus. Sie können beliebig viele Kinder anmelden.<br>
+      <strong>Anmeldung:</strong> 16. November 2025 von 12:00–15:00 Uhr<br>
+      <strong>Zeltlagerzeitraum:</strong> 18.–24. Juli 2026<br>
+      Teilnahmeberechtigt: 8–14 Jahre (Stichtag = <strong>18. Juli 2026</strong>).
     </p>
 
-    <!-- WICHTIG: Hier deine persönliche Formspree-URL eintragen -->
-    <!-- Beispiel: action="https://formspree.io/f/mayzgepd" -->
-    <form id="signupForm" method="POST" action="https://formspree.io/f/[DEINE_FORMSPREE_ID]" novalidate>
-      <input type="hidden" name="_subject" value="Neue Anmeldung: Zeltlager Bösensell 2025" />
+    <form id="signupForm" method="POST" action="https://formspree.io/f/xwpakppg" novalidate>
+      <input type="hidden" name="_subject" value="Neue Anmeldung: Zeltlager Bösensell 2026" />
       <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
       <input type="hidden" name="_replyto" id="replyToHook" />
 
@@ -67,7 +66,7 @@
       <h2>Bestätigung & Datenschutz</h2>
       <div class="grid">
         <label><input type="checkbox" name="consent" value="yes" required /> Ich stimme der Datenverarbeitung gemäß DSGVO zu.</label>
-        <div class="footer-note">Bei Fragen: <strong>[KONTAKT_EMAIL]</strong></div>
+        <div class="footer-note">Bei Fragen: <strong>zeltlagerboesensell@web.de</strong></div>
       </div>
 
       <div class="actions">
@@ -77,7 +76,7 @@
 
       <div id="msg" class="info hidden">Wird gesendet … bitte warten.</div>
       <div id="success" class="success hidden">Vielen Dank! Ihre Anmeldung wurde erfolgreich übermittelt.</div>
-      <div id="error" class="error hidden">Hoppla, das hat nicht geklappt. Bitte erneut versuchen oder an [KONTAKT_EMAIL] wenden.</div>
+      <div id="error" class="error hidden">Hoppla, das hat nicht geklappt. Bitte erneut versuchen oder an zeltlagerboesensell@web.de wenden.</div>
     </form>
   </div>
 
@@ -93,12 +92,7 @@
         </div>
         <div><label class="required">Geburtsdatum</label><input name="__BIRTH__" type="date" required /></div>
         <div><label class="required">Wohnort</label><input name="__CITY__" type="text" required /></div>
-        <div><label class="required">T-Shirt-Größe</label>
-          <select name="__TSHIRT__" required>
-            <option value="">Bitte wählen</option><option>128</option><option>140</option><option>152</option><option>164</option><option>S</option><option>M</option><option>L</option><option>XL</option>
-          </select>
-        </div>
-        <div><label>Ist das Kind ein Betreuerkind?</label><select name="__BETREUER__"><option>Nein</option><option>Ja</option></select></div>
+        <div><label class="required">T-Shirt-Größe</label><input name="__TSHIRT__" type="text" placeholder="z. B. 140 oder M" required /></div>
         <div><label>Bemerkungen</label><input name="__NOTES__" type="text" /></div>
       </div>
       <div class="actions"><button type="button" class="btn secondary removeChildBtn">Kind entfernen</button></div>
@@ -121,18 +115,21 @@
 
       function addChild(){
         const clone=document.importNode(template,true);
-        const map={"__NAME__":`children[${idx}][first]`,"__SURNAME__":`children[${idx}][last]`,"__GENDER__":`children[${idx}][gender]`,"__BIRTH__":`children[${idx}][birthdate]`,"__CITY__":`children[${idx}][city]`,"__TSHIRT__":`children[${idx}][tshirt]`,"__BETREUER__":`children[${idx}][betreuerkind]`,"__NOTES__":`children[${idx}][notes]`};
+        const map={"__NAME__":`children[${idx}][first]`,"__SURNAME__":`children[${idx}][last]`,"__GENDER__":`children[${idx}][gender]`,"__BIRTH__":`children[${idx}][birthdate]`,"__CITY__":`children[${idx}][city]`,"__TSHIRT__":`children[${idx}][tshirt]`,"__NOTES__":`children[${idx}][notes]`};
         clone.querySelectorAll('input, select').forEach(el=>{for(const key in map){if(el.name===key){el.name=map[key];break;}}});
         container.appendChild(clone);
         idx++;
         updateRemoveButtons();
       }
+
       function updateRemoveButtons(){
         const cards=container.querySelectorAll('.child-card');
         cards.forEach(c=>c.querySelector('.removeChildBtn').disabled=cards.length<=1);
       }
+
       addBtn.addEventListener('click',addChild);
       addChild();
+
       container.addEventListener('click',e=>{
         if(e.target.classList.contains('removeChildBtn')){
           const card=e.target.closest('.child-card');
@@ -140,7 +137,9 @@
           updateRemoveButtons();
         }
       });
+
       emailField.addEventListener('input',()=>replyHook.value=emailField.value);
+
       form.addEventListener('submit',async e=>{
         e.preventDefault();ok.classList.add('hidden');err.classList.add('hidden');msg.classList.remove('hidden');submitBtn.disabled=true;
         try{
