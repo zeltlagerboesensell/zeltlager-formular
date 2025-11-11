@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anmeldung Zeltlager Bösensell 2025</title>
+  <style>
+    :root { --max: 860px; --gap: 14px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans"; margin: 0; background: #f7f7f7; color:#111; }
+    .wrap { max-width: var(--max); margin: 32px auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 18px rgba(0,0,0,.06); }
+    h1 { margin-top: 0; font-size: 1.6rem; }
+    h2 { font-size: 1.2rem; margin-top: 28px; border-top: 1px solid #eee; padding-top: 18px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: var(--gap); }
+    @media (min-width:720px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    label { font-weight: 600; display:block; margin-bottom:6px; }
+    input[type="text"], input[type="email"], input[type="date"], select {
+      width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; background:#fff;
+    }
+    .actions { display:flex; gap:10px; margin-top: 10px;}
+    button { appearance: none; border: 0; border-radius: 10px; padding: 11px 14px; cursor: pointer; font-size: 16px; }
+    .btn { background:#111; color:#fff; }
+    .btn.secondary { background:#e9e9e9; color:#111; }
+    .child-card { border:1px solid #eee; border-radius:12px; padding:16px; background:#fafafa; margin-top: 8px; }
+    .muted { color:#555; font-size: 0.95rem; }
+    .required::after { content:" *"; color:#d00; }
+    .success, .error, .info { padding:12px 14px; border-radius:10px; margin-top:16px; }
+    .success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+    .error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+    .info { background:#eff6ff; color:#1e3a8a; border:1px solid #bfdbfe; }
+    .hidden { display:none; }
+    .footer-note { font-size: 0.9rem; color:#666; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Anmeldung Zeltlager Bösensell 2025</h1>
+    <p class="muted">
+      Bitte füllen Sie das Formular sorgfältig aus. Sie können beliebig viele Kinder anmelden.
+      Die Anmeldung ist nur am <strong>[ANMELDEDATUM UND UHRZEIT]</strong> möglich.
+      Teilnahmeberechtigt: 8–14 Jahre (Stichtag = <strong>[ANREISETAG]</strong>).
+    </p>
+
+    <!-- WICHTIG: Hier deine persönliche Formspree-URL eintragen -->
+    <!-- Beispiel: action="https://formspree.io/f/mayzgepd" -->
+    <form id="signupForm" method="POST" action="https://formspree.io/f/[DEINE_FORMSPREE_ID]" novalidate>
+      <input type="hidden" name="_subject" value="Neue Anmeldung: Zeltlager Bösensell 2025" />
+      <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
+      <input type="hidden" name="_replyto" id="replyToHook" />
+
+      <h2>Angaben zu Eltern / Erziehungsberechtigten</h2>
+      <div class="grid grid-2">
+        <div><label class="required">Vorname</label><input name="parent[first]" type="text" required /></div>
+        <div><label class="required">Nachname</label><input name="parent[last]" type="text" required /></div>
+        <div><label class="required">Straße und Hausnummer</label><input name="parent[street]" type="text" required /></div>
+        <div><label class="required">Postleitzahl</label><input name="parent[zip]" type="text" required /></div>
+        <div><label class="required">Ort</label><input name="parent[city]" type="text" required /></div>
+        <div><label class="required">Telefon / Handy</label><input name="parent[phone]" type="text" required /></div>
+        <div><label class="required">E-Mail</label><input id="parent_email" name="parent[email]" type="email" required /></div>
+      </div>
+
+      <h2>Angaben zu Kindern</h2>
+      <div id="childrenContainer"></div>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="addChildBtn">Weiteres Kind hinzufügen</button>
+      </div>
+
+      <h2>Bestätigung & Datenschutz</h2>
+      <div class="grid">
+        <label><input type="checkbox" name="consent" value="yes" required /> Ich stimme der Datenverarbeitung gemäß DSGVO zu.</label>
+        <div class="footer-note">Bei Fragen: <strong>[KONTAKT_EMAIL]</strong></div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn" id="submitBtn">Anmeldung absenden</button>
+        <button type="reset" class="btn secondary">Zurücksetzen</button>
+      </div>
+
+      <div id="msg" class="info hidden">Wird gesendet … bitte warten.</div>
+      <div id="success" class="success hidden">Vielen Dank! Ihre Anmeldung wurde erfolgreich übermittelt.</div>
+      <div id="error" class="error hidden">Hoppla, das hat nicht geklappt. Bitte erneut versuchen oder an [KONTAKT_EMAIL] wenden.</div>
+    </form>
+  </div>
+
+  <template id="childTemplate">
+    <div class="child-card">
+      <div class="grid grid-2">
+        <div><label class="required">Vorname des Kindes</label><input name="__NAME__" type="text" required /></div>
+        <div><label class="required">Nachname des Kindes</label><input name="__SURNAME__" type="text" required /></div>
+        <div><label class="required">Geschlecht</label>
+          <select name="__GENDER__" required>
+            <option value="">Bitte wählen</option><option>Mädchen</option><option>Junge</option><option>Divers</option>
+          </select>
+        </div>
+        <div><label class="required">Geburtsdatum</label><input name="__BIRTH__" type="date" required /></div>
+        <div><label class="required">Wohnort</label><input name="__CITY__" type="text" required /></div>
+        <div><label class="required">T-Shirt-Größe</label>
+          <select name="__TSHIRT__" required>
+            <option value="">Bitte wählen</option><option>128</option><option>140</option><option>152</option><option>164</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+          </select>
+        </div>
+        <div><label>Ist das Kind ein Betreuerkind?</label><select name="__BETREUER__"><option>Nein</option><option>Ja</option></select></div>
+        <div><label>Bemerkungen</label><input name="__NOTES__" type="text" /></div>
+      </div>
+      <div class="actions"><button type="button" class="btn secondary removeChildBtn">Kind entfernen</button></div>
+    </div>
+  </template>
+
+  <script>
+    (function(){
+      const form=document.getElementById('signupForm');
+      const container=document.getElementById('childrenContainer');
+      const addBtn=document.getElementById('addChildBtn');
+      const template=document.getElementById('childTemplate').content;
+      const msg=document.getElementById('msg');
+      const ok=document.getElementById('success');
+      const err=document.getElementById('error');
+      const submitBtn=document.getElementById('submitBtn');
+      const emailField=document.getElementById('parent_email');
+      const replyHook=document.getElementById('replyToHook');
+      let idx=0;
+
+      function addChild(){
+        const clone=document.importNode(template,true);
+        const map={"__NAME__":`children[${idx}][first]`,"__SURNAME__":`children[${idx}][last]`,"__GENDER__":`children[${idx}][gender]`,"__BIRTH__":`children[${idx}][birthdate]`,"__CITY__":`children[${idx}][city]`,"__TSHIRT__":`children[${idx}][tshirt]`,"__BETREUER__":`children[${idx}][betreuerkind]`,"__NOTES__":`children[${idx}][notes]`};
+        clone.querySelectorAll('input, select').forEach(el=>{for(const key in map){if(el.name===key){el.name=map[key];break;}}});
+        container.appendChild(clone);
+        idx++;
+        updateRemoveButtons();
+      }
+      function updateRemoveButtons(){
+        const cards=container.querySelectorAll('.child-card');
+        cards.forEach(c=>c.querySelector('.removeChildBtn').disabled=cards.length<=1);
+      }
+      addBtn.addEventListener('click',addChild);
+      addChild();
+      container.addEventListener('click',e=>{
+        if(e.target.classList.contains('removeChildBtn')){
+          const card=e.target.closest('.child-card');
+          if(container.querySelectorAll('.child-card').length>1)container.removeChild(card);
+          updateRemoveButtons();
+        }
+      });
+      emailField.addEventListener('input',()=>replyHook.value=emailField.value);
+      form.addEventListener('submit',async e=>{
+        e.preventDefault();ok.classList.add('hidden');err.classList.add('hidden');msg.classList.remove('hidden');submitBtn.disabled=true;
+        try{
+          const fd=new FormData(form);
+          if(!fd.get('consent'))throw new Error('Bitte stimmen Sie der Datenverarbeitung zu.');
+          fd.set('_replyto',emailField.value);
+          const resp=await fetch(form.action,{method:'POST',body:fd,headers:{'Accept':'application/json'}});
+          if(resp.ok){msg.classList.add('hidden');ok.classList.remove('hidden');form.reset();container.innerHTML='';idx=0;addChild();}
+          else throw new Error('Unbekannter Fehler beim Senden.');
+        }catch(ex){msg.classList.add('hidden');err.textContent='Fehler: '+ex.message;err.classList.remove('hidden');}
+        finally{submitBtn.disabled=false;}
+      });
+    })();
+  </script>
+</body>
+</html>
