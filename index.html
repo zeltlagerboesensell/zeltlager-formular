@@ -79,7 +79,7 @@
 
         <label>
           <input type="checkbox" name="agb" value="yes" required />
-          Ich habe die <!-- <a href="[LINK_ZU_TEILNAHMEBEDINGUNGEN]" target="_blank">Teilnahmebedingungen</a> -->gelesen und bin mit dem Vorgehen einverstanden.
+          Ich habe die Teilnahmebedingungen <!-- <a href="[LINK_ZU_TEILNAHMEBEDINGUNGEN]" target="_blank">Teilnahmebedingungen</a> -->gelesen und bin mit dem Vorgehen einverstanden.
         </label>
 
         <div class="footer-note">
@@ -177,9 +177,8 @@
         e.preventDefault();
 
         // === Zeitsteuerung (MEZ = UTC+1 am 16.11.2025) ===
-        const now = new Date();
-        const start = new Date("2025-11-16T12:00:00+01:00"); // Startzeit
-        const end   = new Date("2025-11-16T15:00:00+01:00"); // Endzeit
+const start = new Date(Date.now() - 5 * 60 * 1000); // 5 Minuten in der Vergangenheit
+const end   = new Date(Date.now() + 15 * 60 * 1000); // 15 Minuten in der Zukunft
 
         if (now < start || now > end) {
           ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
@@ -225,4 +224,5 @@
   </script>
 </body>
 </html>
+
 
