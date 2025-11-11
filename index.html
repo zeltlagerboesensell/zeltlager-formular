@@ -175,20 +175,21 @@
       // ABSENDEN mit Zeitfenster + Checkbox-Prüfung
       form.addEventListener('submit', async e => {
         e.preventDefault();
+/*
+const now = new Date();
+const start = new Date("2025-11-16T12:00:00+01:00");
+const end   = new Date("2025-11-16T15:00:00+01:00");
 
-        // === Zeitsteuerung (MEZ = UTC+1 am 16.11.2025) ===
-const start = new Date(Date.now() - 5 * 60 * 1000); // 5 Minuten in der Vergangenheit
-const end   = new Date(Date.now() + 15 * 60 * 1000); // 15 Minuten in der Zukunft
-
-        if (now < start || now > end) {
-          ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
-          const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
-          const closedMsg = document.createElement('div');
-          closedMsg.className = 'error notice';
-          closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
-          form.appendChild(closedMsg);
-          return;
-        }
+if (now < start || now > end) {
+  ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
+  const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
+  const closedMsg = document.createElement('div');
+  closedMsg.className = 'error notice';
+  closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
+  form.appendChild(closedMsg);
+  return;
+}
+*/
 
         // === Normales Absenden ===
         ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.remove('hidden');
@@ -224,5 +225,6 @@ const end   = new Date(Date.now() + 15 * 60 * 1000); // 15 Minuten in der Zukunf
   </script>
 </body>
 </html>
+
 
 
