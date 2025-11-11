@@ -41,9 +41,16 @@
       Teilnahmeberechtigt: 8–14 Jahre (Stichtag = <strong>18. Juli 2026</strong>).
     </p>
 
+    <!-- Hinweis zur Öffnungszeit -->
+    <div id="notice" class="info" style="margin-bottom: 16px;">
+      🕓 Die Anmeldung öffnet am <strong>16. November 2025 um 12:00 Uhr</strong> und schließt um <strong>15:00 Uhr</strong>.
+    </div>
+
     <form id="signupForm" method="POST" action="https://formspree.io/f/xwpakppg" novalidate>
       <input type="hidden" name="_subject" value="Neue Anmeldung: Zeltlager Bösensell 2026" />
+      <!-- Honeypot gegen Bots -->
       <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
+      <!-- Für Reply-To in E-Mail -->
       <input type="hidden" name="_replyto" id="replyToHook" />
 
       <h2>Angaben zu Eltern / Erziehungsberechtigten</h2>
@@ -65,8 +72,19 @@
 
       <h2>Bestätigung & Datenschutz</h2>
       <div class="grid">
-        <label><input type="checkbox" name="consent" value="yes" required /> Ich stimme der Datenverarbeitung gemäß DSGVO zu.</label>
-        <div class="footer-note">Bei Fragen: <strong>zeltlagerboesensell@web.de</strong></div>
+        <label>
+          <input type="checkbox" name="consent" value="yes" required />
+          Ich stimme der Verarbeitung meiner Daten gemäß der DSGVO zu.
+        </label>
+
+        <label>
+          <input type="checkbox" name="agb" value="yes" required />
+          Ich habe die <a href="[LINK_ZU_TEILNAHMEBEDINGUNGEN]" target="_blank">Teilnahmebedingungen</a> gelesen und bin mit dem Vorgehen einverstanden.
+        </label>
+
+        <div class="footer-note">
+          Bei Fragen: <strong>zeltlagerboesensell@web.de</strong>
+        </div>
       </div>
 
       <div class="actions">
@@ -85,7 +103,8 @@
       <div class="grid grid-2">
         <div><label class="required">Vorname des Kindes</label><input name="__NAME__" type="text" required /></div>
         <div><label class="required">Nachname des Kindes</label><input name="__SURNAME__" type="text" required /></div>
-        <div><label class="required">Geschlecht</label>
+        <div>
+          <label class="required">Geschlecht</label>
           <select name="__GENDER__" required>
             <option value="">Bitte wählen</option><option>Mädchen</option><option>Junge</option><option>Divers</option>
           </select>
@@ -115,8 +134,18 @@
 
       function addChild(){
         const clone=document.importNode(template,true);
-        const map={"__NAME__":`children[${idx}][first]`,"__SURNAME__":`children[${idx}][last]`,"__GENDER__":`children[${idx}][gender]`,"__BIRTH__":`children[${idx}][birthdate]`,"__CITY__":`children[${idx}][city]`,"__TSHIRT__":`children[${idx}][tshirt]`,"__NOTES__":`children[${idx}][notes]`};
-        clone.querySelectorAll('input, select').forEach(el=>{for(const key in map){if(el.name===key){el.name=map[key];break;}}});
+        const map={
+          "__NAME__":`children[${idx}][first]`,
+          "__SURNAME__":`children[${idx}][last]`,
+          "__GENDER__":`children[${idx}][gender]`,
+          "__BIRTH__":`children[${idx}][birthdate]`,
+          "__CITY__":`children[${idx}][city]`,
+          "__TSHIRT__":`children[${idx}][tshirt]`,
+          "__NOTES__":`children[${idx}][notes]`
+        };
+        clone.querySelectorAll('input, select').forEach(el=>{
+          for(const key in map){ if(el.name===key){ el.name=map[key]; break; } }
+        });
         container.appendChild(clone);
         idx++;
         updateRemoveButtons();
@@ -128,29 +157,69 @@
       }
 
       addBtn.addEventListener('click',addChild);
-      addChild();
+      addChild(); // initial
 
       container.addEventListener('click',e=>{
         if(e.target.classList.contains('removeChildBtn')){
           const card=e.target.closest('.child-card');
-          if(container.querySelectorAll('.child-card').length>1)container.removeChild(card);
+          if(container.querySelectorAll('.child-card').length>1){
+            container.removeChild(card);
+          }
           updateRemoveButtons();
         }
       });
 
+      // Reply-To für Formspree
       emailField.addEventListener('input',()=>replyHook.value=emailField.value);
 
-      form.addEventListener('submit',async e=>{
-        e.preventDefault();ok.classList.add('hidden');err.classList.add('hidden');msg.classList.remove('hidden');submitBtn.disabled=true;
-        try{
-          const fd=new FormData(form);
-          if(!fd.get('consent'))throw new Error('Bitte stimmen Sie der Datenverarbeitung zu.');
-          fd.set('_replyto',emailField.value);
-          const resp=await fetch(form.action,{method:'POST',body:fd,headers:{'Accept':'application/json'}});
-          if(resp.ok){msg.classList.add('hidden');ok.classList.remove('hidden');form.reset();container.innerHTML='';idx=0;addChild();}
-          else throw new Error('Unbekannter Fehler beim Senden.');
-        }catch(ex){msg.classList.add('hidden');err.textContent='Fehler: '+ex.message;err.classList.remove('hidden');}
-        finally{submitBtn.disabled=false;}
+      // ABSENDEN mit Zeitfenster + Checkbox-Prüfung
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        // === Zeitsteuerung (MEZ = UTC+1 am 16.11.2025) ===
+        const now = new Date();
+        const start = new Date("2025-11-16T12:00:00+01:00"); // Startzeit
+        const end   = new Date("2025-11-16T15:00:00+01:00"); // Endzeit
+
+        if (now < start || now > end) {
+          ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
+          const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
+          const closedMsg = document.createElement('div');
+          closedMsg.className = 'error notice';
+          closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
+          form.appendChild(closedMsg);
+          return;
+        }
+
+        // === Normales Absenden ===
+        ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.remove('hidden');
+        submitBtn.disabled = true;
+
+        try {
+          const fd = new FormData(form);
+          // Pflicht-Checkboxen prüfen
+          if (!fd.get('consent')) throw new Error('Bitte stimmen Sie der Datenverarbeitung zu.');
+          if (!fd.get('agb'))     throw new Error('Bitte bestätigen Sie, dass Sie die Teilnahmebedingungen gelesen haben und einverstanden sind.');
+          // Reply-To setzen
+          fd.set('_replyto', emailField.value);
+
+          const resp = await fetch(form.action, { method: 'POST', body: fd, headers: { 'Accept':'application/json' } });
+          if (resp.ok) {
+            msg.classList.add('hidden');
+            ok.classList.remove('hidden');
+            form.reset();
+            container.innerHTML = '';
+            idx = 0; addChild();
+          } else {
+            throw new Error('Unbekannter Fehler beim Senden.');
+          }
+        } catch (ex) {
+          msg.classList.add('hidden');
+          err.textContent = 'Fehler: ' + ex.message;
+          err.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+        }
       });
     })();
   </script>
