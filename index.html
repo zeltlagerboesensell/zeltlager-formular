@@ -41,11 +41,6 @@
       Teilnahmeberechtigt: 8–14 Jahre (Stichtag = <strong>18. Juli 2026</strong>).
     </p>
 
-    <!-- Hinweis zur Öffnungszeit -->
-    <div id="notice" class="info" style="margin-bottom: 16px;">
-      🕓 Die Anmeldung öffnet am <strong>16. November 2025 um 12:00 Uhr</strong> und schließt um <strong>15:00 Uhr</strong>.
-    </div>
-
     <form id="signupForm" method="POST" action="https://formspree.io/f/xwpakppg" novalidate>
       <input type="hidden" name="_subject" value="Neue Anmeldung: Zeltlager Bösensell 2026" />
       <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
@@ -106,7 +101,10 @@
         <div>
           <label class="required">Geschlecht</label>
           <select name="__GENDER__" required>
-            <option value="">Bitte wählen</option><option>Mädchen</option><option>Junge</option><option>Divers</option>
+            <option value="">Bitte wählen</option>
+            <option>Mädchen</option>
+            <option>Junge</option>
+            <option>Divers</option>
           </select>
         </div>
         <div><label class="required">Geburtsdatum</label><input name="__BIRTH__" type="date" required /></div>
@@ -120,49 +118,54 @@
 
   <script>
     (function(){
-      const form=document.getElementById('signupForm');
-      const container=document.getElementById('childrenContainer');
-      const addBtn=document.getElementById('addChildBtn');
-      const template=document.getElementById('childTemplate').content;
-      const msg=document.getElementById('msg');
-      const ok=document.getElementById('success');
-      const err=document.getElementById('error');
-      const submitBtn=document.getElementById('submitBtn');
-      const emailField=document.getElementById('parent_email');
-      const replyHook=document.getElementById('replyToHook');
-      let idx=0;
+      const form = document.getElementById('signupForm');
+      const container = document.getElementById('childrenContainer');
+      const addBtn = document.getElementById('addChildBtn');
+      const template = document.getElementById('childTemplate').content;
+      const msg = document.getElementById('msg');
+      const ok = document.getElementById('success');
+      const err = document.getElementById('error');
+      const submitBtn = document.getElementById('submitBtn');
+      const emailField = document.getElementById('parent_email');
+      const replyHook = document.getElementById('replyToHook');
+      let idx = 0;
 
-      function addChild(){
-        const clone=document.importNode(template,true);
-        const map={
-          "__NAME__":`children[${idx}][first]`,
-          "__SURNAME__":`children[${idx}][last]`,
-          "__GENDER__":`children[${idx}][gender]`,
-          "__BIRTH__":`children[${idx}][birthdate]`,
-          "__CITY__":`children[${idx}][city]`,
-          "__TSHIRT__":`children[${idx}][tshirt]`,
-          "__NOTES__":`children[${idx}][notes]`
+      function addChild() {
+        const clone = document.importNode(template, true);
+        const map = {
+          "__NAME__": `children[${idx}][first]`,
+          "__SURNAME__": `children[${idx}][last]`,
+          "__GENDER__": `children[${idx}][gender]`,
+          "__BIRTH__": `children[${idx}][birthdate]`,
+          "__CITY__": `children[${idx}][city]`,
+          "__TSHIRT__": `children[${idx}][tshirt]`,
+          "__NOTES__": `children[${idx}][notes]`
         };
-        clone.querySelectorAll('input, select').forEach(el=>{
-          for(const key in map){ if(el.name===key){ el.name=map[key]; break; } }
+        clone.querySelectorAll('input, select').forEach(el => {
+          for (const key in map) {
+            if (el.name === key) {
+              el.name = map[key];
+              break;
+            }
+          }
         });
         container.appendChild(clone);
         idx++;
         updateRemoveButtons();
       }
 
-      function updateRemoveButtons(){
-        const cards=container.querySelectorAll('.child-card');
-        cards.forEach(c=>c.querySelector('.removeChildBtn').disabled=cards.length<=1);
+      function updateRemoveButtons() {
+        const cards = container.querySelectorAll('.child-card');
+        cards.forEach(c => c.querySelector('.removeChildBtn').disabled = cards.length <= 1);
       }
 
-      addBtn.addEventListener('click',addChild);
+      addBtn.addEventListener('click', addChild);
       addChild(); // initial
 
-      container.addEventListener('click',e=>{
-        if(e.target.classList.contains('removeChildBtn')){
-          const card=e.target.closest('.child-card');
-          if(container.querySelectorAll('.child-card').length>1){
+      container.addEventListener('click', e => {
+        if (e.target.classList.contains('removeChildBtn')) {
+          const card = e.target.closest('.child-card');
+          if (container.querySelectorAll('.child-card').length > 1) {
             container.removeChild(card);
           }
           updateRemoveButtons();
@@ -170,33 +173,20 @@
       });
 
       // Reply-To für Formspree
-      emailField.addEventListener('input',()=>replyHook.value=emailField.value);
+      emailField.addEventListener('input', () => replyHook.value = emailField.value);
 
-      // ABSENDEN mit Zeitfenster + Checkbox-Prüfung
+      // ABSENDEN ohne zeitliche Einschränkung
       form.addEventListener('submit', async e => {
         e.preventDefault();
 
-        // === Zeitsteuerung ===
-        const now = new Date();
-        const start = new Date("2025-11-16T12:00:00+01:00");
-        const end   = new Date("2025-11-16T19:00:00+01:00");
-
-        if (now < start || now > end) {
-          ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.add('hidden');
-          const existingNotice = form.querySelector('.error.notice'); if (existingNotice) existingNotice.remove();
-          const closedMsg = document.createElement('div');
-          closedMsg.className = 'error notice';
-          closedMsg.textContent = '❌ Die Anmeldung ist derzeit geschlossen. Bitte am 16.11.2025 zwischen 12:00 und 15:00 Uhr erneut versuchen.';
-          form.appendChild(closedMsg);
-          return;
-        }
-
-        // === Normales Absenden ===
-        ok.classList.add('hidden'); err.classList.add('hidden'); msg.classList.remove('hidden');
+        ok.classList.add('hidden');
+        err.classList.add('hidden');
+        msg.classList.remove('hidden');
         submitBtn.disabled = true;
 
         try {
           const fd = new FormData(form);
+
           // Pflicht-Checkboxen prüfen
           const consentBox = document.getElementById('consent');
           const agbBox = document.getElementById('agb');
@@ -204,13 +194,20 @@
           if (!agbBox.checked) throw new Error('Bitte bestätigen Sie, dass Sie die Teilnahmebedingungen gelesen haben und einverstanden sind.');
 
           fd.set('_replyto', emailField.value);
-          const resp = await fetch(form.action, { method: 'POST', body: fd, headers: { 'Accept':'application/json' } });
+
+          const resp = await fetch(form.action, {
+            method: 'POST',
+            body: fd,
+            headers: { 'Accept': 'application/json' }
+          });
+
           if (resp.ok) {
             msg.classList.add('hidden');
             ok.classList.remove('hidden');
             form.reset();
             container.innerHTML = '';
-            idx = 0; addChild();
+            idx = 0;
+            addChild();
           } else {
             throw new Error('Unbekannter Fehler beim Senden.');
           }
@@ -226,4 +223,3 @@
   </script>
 </body>
 </html>
-
