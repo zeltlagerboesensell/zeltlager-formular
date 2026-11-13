@@ -40,7 +40,7 @@
 (()=>{
  const form=document.getElementById('signupForm'), holder=document.getElementById('children'),tpl=document.getElementById('childTpl');
  const status=document.getElementById('status'),send=document.getElementById('submit'),feedback=document.getElementById('feedback');let index=0;
- const opens=Date.parse('2026-11-15T11:00:00Z'),closes=Date.parse('2026-11-15T14:00:00Z'); // 12–15 Uhr MEZ
+ const opens=Date.parse('2026-11-12T11:00:00Z'),closes=Date.parse('2026-11-12T14:00:00Z');
  const mode=()=>Date.now()<opens?'before':Date.now()<closes?'regular':'waitlist';
  function updateMode(){const m=mode();status.className='status '+(m==='waitlist'?'wait':m==='before'?'closed':'');if(m==='before'){status.textContent='Die Anmeldung öffnet am Sonntag, 15. November 2026, um 12:00 Uhr (deutscher Zeit). Vorher kann das Formular nicht abgeschickt werden.';send.disabled=true;send.textContent='Anmeldung noch nicht geöffnet';}
  else if(m==='regular'){status.textContent='Die reguläre Anmeldung ist geöffnet (15.11.2026, 12:00–15:00 Uhr). Die Anmeldung ist noch keine Platzzusage.';send.disabled=false;send.textContent='Anmeldung absenden';}
